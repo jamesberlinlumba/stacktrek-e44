@@ -1,0 +1,12 @@
+.product {
+    display: flex;
+    padding: 20px 0;
+}
+
+.product img {
+    height: 600px;
+}
+
+.product section {
+    padding-left: 40px;
+}

@@ -1,0 +1,16 @@
+.navBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    padding: 0 10%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(36, 0, 36, 255);
+}
+
+.navBar h3:hover {
+    cursor: pointer;
+}

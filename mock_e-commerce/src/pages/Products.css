@@ -1,0 +1,25 @@
+.search {
+    margin: 20px 0;
+    padding: 10px 20px;
+    width: 50%;
+}
+
+.products section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.products section figure {
+    margin: 0;
+    padding: 20px;
+    width: 29%;
+}
+
+.products section figure img {
+    width: 100%;
+}
+.products section figure img:hover {
+    cursor: pointer;
+}
