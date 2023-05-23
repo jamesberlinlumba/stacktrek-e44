@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "hot": "node --watch server.js" 
+    "hot": "node --watch server.js",
+    "netlify-deploy": "npm install --prefix ../mock_e-commerce && npm run build --prefix ../mock_e-commerce" 
   },
   "author": "awesomeness",
   "license": "ISC",
