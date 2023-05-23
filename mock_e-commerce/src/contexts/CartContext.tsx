@@ -1,4 +1,9 @@
-import { createContext, FunctionComponent, PropsWithChildren, useReducer, useContext } from 'react'
+import { createContext,
+    FunctionComponent,
+    PropsWithChildren,
+    useReducer,
+    useContext,
+    useEffect } from 'react'
 
 import { getProducts } from '../apis/product'
 import { getCart } from '../apis/cart'
@@ -32,11 +37,14 @@ export type CartItem = {
 }
 
 type State = {
+    products: ProductType[],
+    productsMap: Map<string, Set<number>>,
     cart: CartItem[],
     searchResult: ProductType[]
 }
 
 type Action =
+    | { type: 'updateProducts', products: ProductType[] }
     | { type: 'updateCart'; cart: CartItem[] }
     | { type: 'search', text: string }
 
@@ -52,59 +60,93 @@ const AppContext = createContext<Context>({
     }
 })
 
-const products = await getProducts()
-
-const productsMap = new Map();
-
-for (let product of products) {
-    for (let word of product.title.toLowerCase().split(/\W+/)) {
-        if (!productsMap.has(word)) {
-            productsMap.set(word, new Set().add(product.id))
-        } else {
-            productsMap.get(word).add(product.id)
-        }
-    }
-    for (let word of product.category.toLowerCase().split(/\W+/)) {
-        if (!productsMap.has(word)) {
-            productsMap.set(word, new Set().add(product.id))
-        } else {
-            productsMap.get(word).add(product.id)
-        }
-    }
-}
-
 const appReducer = (state: State, action: Action) => {
     switch (action.type) {
+        case 'updateProducts': {
+            if (state.products.length > 0) {
+                return state
+            }
+
+            const productsMap = new Map();
+
+            for (let product of action.products) {
+                for (let word of product.title.toLowerCase().split(/\W+/)) {
+                    if (!productsMap.has(word)) {
+                        productsMap.set(word, new Set().add(product.id))
+                    } else {
+                        productsMap.get(word).add(product.id)
+                    }
+                }
+                for (let word of product.category.toLowerCase().split(/\W+/)) {
+                    if (!productsMap.has(word)) {
+                        productsMap.set(word, new Set().add(product.id))
+                    } else {
+                        productsMap.get(word).add(product.id)
+                    }
+                }
+            }
+
+            return state = {
+                products: action.products,
+                productsMap: productsMap,
+                cart: state.cart,
+                searchResult: action.products
+            }
+        }
         case 'updateCart': {
-            return { cart: action.cart, searchResult: state.searchResult }
+            return state = {
+                products: state.products,
+                productsMap: state.productsMap,
+                cart: action.cart,
+                searchResult: state.searchResult
+            }
         }
         case 'search': {
             if (action.text === '') {
-                return { cart: state.cart, searchResult: products }
+                return state = {
+                    products: state.products,
+                    productsMap: state.productsMap,
+                    cart: state.cart,
+                    searchResult: state.products
+                }
             }
 
             let searchResult: ProductType[] = []
 
             for (let word of action.text.toLowerCase().split(/\W+/)) {
-                if (productsMap.has(word)) {
-                    for (let entry of productsMap.get(word)) {
+                const entries = state.productsMap.get(word)
+                if (entries !== undefined) {
+                    for (let entry of entries) {
                         if (!searchResult.map(item => item.id).includes(entry)) {
-                            searchResult = [ ...searchResult, products.find((item: ProductType) => item.id === entry)]
+                            const found = state.products.find((item: ProductType) => item.id === entry)
+                            if (found !== undefined) {
+                                searchResult = [ ...searchResult, found]
+                            }
                         }
                     }
                 }
             }
 
-            return { cart: state.cart, searchResult: searchResult }
+            return state = {
+                products: state.products,
+                productsMap: state.productsMap,
+                cart: state.cart,
+                searchResult: searchResult
+            }
         }
     }
 }
 
-const initialCart = await getCart()
+export const AppProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
+    const [state, dispatch] = useReducer(appReducer, { products: [], productsMap: new Map(), cart: [], searchResult: [] })
 
-export const CartProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
-    const [state, dispatch] = useReducer(appReducer, { cart: initialCart, searchResult: products })
-
+    useEffect(() => {
+        if (state.products.length < 1) {
+            getProducts().then(products => { dispatch({ type: 'updateProducts', products: products }) })
+        }
+        getCart().then(cart => { dispatch({ type: 'updateCart', cart: cart }) })
+    }, [])
+    
     return (
         <AppContext.Provider value={{ cart: state.cart, searchResult: state.searchResult, dispatch }}>
             {children}
