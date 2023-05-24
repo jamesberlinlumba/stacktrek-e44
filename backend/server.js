@@ -17,7 +17,7 @@ const server = app.listen(process.env.PORT || 8081, function () {
 app.use(express.json())
 app.use(morgan('dev'))
 
-app.use('/.netlify/functions/', routes)
+app.use('/api/', routes)
 
 app.use(express.static('../backend/dist'))
 app.get('*', (req, res) => {
