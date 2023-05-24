@@ -10,7 +10,7 @@ const NavBar = () => {
     return (
         <div className="navBar">
             <h3 onClick={ () => {setLocation('/')} }>E-Commerce</h3>
-            <a href='/cart'>Cart{cart.length > 0 ? ` (${cart.length})` : ''}</a>
+            <a onClick={ () => {setLocation('/cart')} }>Cart{cart.length > 0 ? ` (${cart.length})` : ''}</a>
         </div>
     )
 }
