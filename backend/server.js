@@ -20,6 +20,6 @@ app.use(morgan('dev'))
 app.use('/api', routes)
 
 app.use(express.static('../backend/dist'))
-app.get('/', (req, res) => {
+app.get('*', (req, res) => {
   res.sendFile(resolve(dirname(dirname(fileURLToPath(import.meta.url)))), 'backend', 'dist', 'index.html')
 })
