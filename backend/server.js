@@ -19,7 +19,7 @@ app.use(morgan('dev'))
 
 app.use('/api', routes)
 
-app.use(express.static('../mock_e-commerce/dist'))
+app.use(express.static('../backend/dist'))
 app.get('/', (req, res) => {
-  res.sendFile(resolve(dirname(dirname(fileURLToPath(import.meta.url)))), 'mock_e-commerce', 'dist', 'index.html')
+  res.sendFile(resolve(dirname(dirname(fileURLToPath(import.meta.url)))), 'backend', 'dist', 'index.html')
 })
